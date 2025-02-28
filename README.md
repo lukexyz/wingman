@@ -16,6 +16,10 @@ pip install -r requirements.txt
 sudo apt update
 sudo apt install ffmpeg
 ```
+4. If you also want to fix the sounddevice related warning, install its dependencies:
+```bashsudo apt install libportaudio2 libasound-dev
+pip install sounddevice
+```
 ### Nbdev (optional)  
 [Quickstart doc](https://nbdev.fast.ai/tutorials/tutorial.html) from nbdev.fast.ai.
 ```bash
