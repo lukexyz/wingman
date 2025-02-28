@@ -14,7 +14,7 @@ pip install -r requirements.txt
 3. Update your package lists and install `ffmpeg`
 ```bash
 sudo apt update
-sudo apt install ffmpeg
+sudo apt install ffmpeg portaudio19-dev python-all-dev
 ```
 4. If you also want to fix the sounddevice related warning, install its dependencies:
 ```bashsudo apt install libportaudio2 libasound-dev
