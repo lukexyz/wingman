@@ -2,6 +2,8 @@
  Conversation, deconstructed. 📝🔬
 
 ## Setup
+1. Fast Ubuntu creation on WSL with: [fastsetup](https://github.com/AnswerDotAI/fastsetup)
+2. Conda env:
 ```bash
 git clone https://github.com/lukexyz/wingman.git
 cd GameSetChat
