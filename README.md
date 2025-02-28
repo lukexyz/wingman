@@ -1,2 +1,2 @@
-# wingman
- Conversation, deconstructed. 🔬💬
+# wingman 🎙️
+ Conversation, deconstructed. 📝🔬
