@@ -1,5 +1,5 @@
 # wingman 🎙️
- Conversation, deconstructed. 📝🔬
+ Conversations, deconstructed. 📝🔬
 
 ## Setup
 1. Fast WSL Ubuntu setup: [fastsetup](https://github.com/AnswerDotAI/fastsetup)
