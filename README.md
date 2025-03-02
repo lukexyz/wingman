@@ -6,7 +6,7 @@
 2. Conda env for `wingman`
 ```bash
 git clone https://github.com/lukexyz/wingman.git
-cd GameSetChat
+cd wingman
 conda create -n wingman python=3.11 pip jupyter
 conda activate wingman
 pip install -r requirements.txt
