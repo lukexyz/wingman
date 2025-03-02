@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "wingman"
+  site-url: "https://lukexyz.github.io/wingman"
+  description: ""
+  repo-branch: main
+  repo-url: "https://github.com/lukexyz/wingman"
