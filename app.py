@@ -1,7 +1,11 @@
-import gradio as gr
+"""Wingman - An AI-powered interview practice and conversation assistant."""
 import claudette
+import gradio as gr
 from pathlib import Path
+import random
+import time
 from utils import custom_css
+
 
 def read_file(file_obj):
     if file_obj is None:
@@ -19,23 +23,36 @@ def update_system_prompt(file_obj, scenario):
     return base_prompt + f"\nContext:\n{content}"
 
 
+system_prompt = """You are a helpful and concise assistant."""
+model = claudette.models[3]
+print(f'\nChosen model: {model}')
+chat = claudette.Chat(model, sp=system_prompt)
+
+def respond(user_message, history):
+    print("Messages received so far:", user_message)  # Print to see outside gradio
+    c = chat(user_message)
+    return c.content[0].text 
+
+
 with gr.Blocks(
     title="Wingman", 
     theme="shivi/calm_seafoam",
     css=custom_css) as demo: 
 
     html = gr.HTML(value="""
-        <h1 style='font-size: 2em; margin: 0.0em 0;'> 
-            <span style='
-                background-color: rgba(255, 255, 0, 0.3);
-                padding: 0px 8px;
-                border-radius: 8px;
-            '>WINGMAN</span> 🎙️
-        </h1>
+        <div class="main-header" style="text-align: center; width: 100%;">
+            <h1 style='font-size: 2em; margin: 0.0em 0;'> 
+                🗨️<span style='
+                    background-color: rgba(255, 255, 0, 0.3);
+                    padding: 0px 8px;
+                    border-radius: 8px;
+                '>🎙️WINGMAN🎙️</span>💬
+            </h1>
+        </div>
     """)
     
     # Add accordion for the top section
-    with gr.Accordion("Settings Dropdown 📝", open=False):
+    with gr.Accordion("📝 System Settings", open=False):
         with gr.Row():
             file = gr.File(label="Included in system prompt.", file_types=[".txt"])
             with gr.Column():
@@ -53,9 +70,13 @@ with gr.Blocks(
     with gr.Row():
         with gr.Column():
             markdown = gr.Markdown(value="# CHAT")
-            button = gr.Button(variant="primary", value="🎙️ Record")
-            chatbot = gr.Chatbot()
-            multimodaltextbox = gr.MultimodalTextbox(lines=1.0, label=" ")
+            button = gr.Button(variant="primary", value="🎙️ Record") # TODO - Incorporate with `fastrtc`
+
+            chatbot = gr.ChatInterface(
+                fn=respond,
+                examples=["Hello. Let's begin."],
+                theme="default"
+            )
 
         with gr.Column():
             markdown_2 = gr.Markdown(value="# EVALUATION")
