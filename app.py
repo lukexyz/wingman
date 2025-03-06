@@ -1,6 +1,7 @@
 import gradio as gr
 import claudette
 from pathlib import Path
+from utils import custom_css
 
 def read_file(file_obj):
     if file_obj is None:
@@ -17,21 +18,24 @@ def update_system_prompt(file_obj, scenario):
     
     return base_prompt + f"\nContext:\n{content}"
 
-with gr.Blocks() as demo:
+
+with gr.Blocks(
+    title="Wingman", 
+    theme="shivi/calm_seafoam",
+    css=custom_css) as demo: 
+
     html = gr.HTML(value="""
-        <h1 style='font-size: 2em; margin: 0.0em 0;'>
-            wingman 
+        <h1 style='font-size: 2em; margin: 0.0em 0;'> 
             <span style='
                 background-color: rgba(255, 255, 0, 0.3);
                 padding: 0px 8px;
                 border-radius: 8px;
-            '>highlighter</span>
-            🎙️
+            '>WINGMAN</span> 🎙️
         </h1>
     """)
     
     # Add accordion for the top section
-    with gr.Accordion("System Settings", open=True):
+    with gr.Accordion("Settings Dropdown 📝", open=False):
         with gr.Row():
             file = gr.File(label="Included in system prompt.", file_types=[".txt"])
             with gr.Column():
@@ -84,4 +88,5 @@ with gr.Blocks() as demo:
                 number_2 = gr.Number(label="Confidence", value=7.0, info="rating/10")
                 number_3 = gr.Number(label="Technical Expertise", value=6.8, info="rating/10")
                 number_4 = gr.Number(label="Strategic Thinking", value=5.2, info="rating/10")
+
 demo.launch()
