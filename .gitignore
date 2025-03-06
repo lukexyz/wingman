@@ -172,3 +172,4 @@ cython_debug/
 
 
 nbdev-template-1.1.5/
+/nbs/job_listings/*
