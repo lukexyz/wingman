@@ -1,7 +1,58 @@
-import gradio as gr
+"""Wingman - An AI-powered interview practice and conversation assistant."""
 import claudette
+import gradio as gr
 from pathlib import Path
+import random
+import time
 from utils import custom_css
+from wingman.chat import INTERVIEW_INSTRUCTIONS
+from wingman.interview import DEFAULT_QUESTIONS
+
+# Global variables for chat state
+chat_instance = None
+is_first_interaction = True
+
+def initialize_interview_chat():
+    global chat_instance
+    try:
+        context_file = Path('docs/analytics.md')
+        context_media = context_file.read_text(encoding='utf-8')
+    except:
+        context_media = ""  # Fallback if file not found
+        
+    system_prompt = """You are a helpful and concise assistant."""
+    model = claudette.models[3]
+    
+    chat_instance = claudette.Chat(model, sp=system_prompt)
+    
+    # Get initial interview questions
+    prompt = f"""Can you come up with 10 realistic questions a hiring manager might ask in an opening interview? The job title for this role is: SENIOR RESEARCH ANALYST.
+            Do not add any additional commentary, just list 10 questions only. Start each question with a new line starting like:
+                [Q1] ... 
+                [Q2] ...
+                My resume is in the project docs, the core competencies for a senior analyst are below:
+                {context_media}"""
+                
+    return chat_instance(prompt)
+
+def respond(user_message, history):
+    """Handle chat responses and initialize interview on first interaction."""
+    global chat_instance, is_first_interaction
+    
+    print("Messages received so far:", user_message)  # Print to see outside gradio
+    
+    # Initialize chat on first interaction
+    if is_first_interaction and user_message.strip().lower() == "hello. let's begin.":
+        is_first_interaction = False
+        initial_questions = initialize_interview_chat()
+        return f"Welcome! I've prepared some interview questions for you. Here they are:\n\n{initial_questions.content[0].text}\n\nLet's start with the first question. Are you ready?"
+    
+    # Regular chat interaction
+    if chat_instance is None:
+        chat_instance = claudette.Chat(claudette.models[3], sp="You are a helpful and concise assistant.")
+    
+    response = chat_instance(f'System message: {INTERVIEW_INSTRUCTIONS}, User: {user_message}')
+    return response.content[0].text
 
 def read_file(file_obj):
     if file_obj is None:
@@ -18,24 +69,25 @@ def update_system_prompt(file_obj, scenario):
     
     return base_prompt + f"\nContext:\n{content}"
 
-
 with gr.Blocks(
     title="Wingman", 
     theme="shivi/calm_seafoam",
     css=custom_css) as demo: 
 
     html = gr.HTML(value="""
-        <h1 style='font-size: 2em; margin: 0.0em 0;'> 
-            <span style='
-                background-color: rgba(255, 255, 0, 0.3);
-                padding: 0px 8px;
-                border-radius: 8px;
-            '>WINGMAN</span> 🎙️
-        </h1>
+        <div class="main-header" style="text-align: center; width: 100%;">
+            <h1 style='font-size: 2em; margin: 0.0em 0;'> 
+                <span style='
+                    background-color: rgba(255, 255, 0, 0.3);
+                    padding: 0px 8px;
+                    border-radius: 8px;
+                '>WINGMAN🎙️</span>
+            </h1>
+        </div>
     """)
     
     # Add accordion for the top section
-    with gr.Accordion("Settings Dropdown 📝", open=False):
+    with gr.Accordion("📝 System Settings", open=False):
         with gr.Row():
             file = gr.File(label="Included in system prompt.", file_types=[".txt"])
             with gr.Column():
@@ -53,9 +105,13 @@ with gr.Blocks(
     with gr.Row():
         with gr.Column():
             markdown = gr.Markdown(value="# CHAT")
-            button = gr.Button(variant="primary", value="🎙️ Record")
-            chatbot = gr.Chatbot()
-            multimodaltextbox = gr.MultimodalTextbox(lines=1.0, label=" ")
+            button = gr.Button(variant="primary", value="🎙️ Record") # TODO - Incorporate with `fastrtc`
+
+            chatbot = gr.ChatInterface(
+                fn=respond,
+                examples=["Hello. Let's begin."],
+                theme="default"
+            )
 
         with gr.Column():
             markdown_2 = gr.Markdown(value="# EVALUATION")
