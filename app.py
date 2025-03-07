@@ -13,11 +13,9 @@ chat_instance = None
 is_first_interaction = True
 
 def initialize_interview_chat():
-    """Initialize the interview chat with context and return initial questions."""
     global chat_instance
-    
     try:
-        context_file = Path('nbs/docs/analytics.md')
+        context_file = Path('docs/analytics.md')
         context_media = context_file.read_text(encoding='utf-8')
     except:
         context_media = ""  # Fallback if file not found
