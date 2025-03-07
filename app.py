@@ -73,7 +73,6 @@ def respond(user_message, history):
     return response.content[0].text
 
 
-
 def update_system_prompt(file_obj, scenario):
     content = read_file(file_obj) if file_obj else ""
     if scenario == "Technical Interview":
