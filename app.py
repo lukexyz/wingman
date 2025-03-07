@@ -12,10 +12,22 @@ from wingman.interview import DEFAULT_QUESTIONS
 chat_instance = None
 is_first_interaction = True
 
+def read_file(file_obj):
+    if file_obj is None:
+        return ""
+    content = file_obj.read().decode('utf-8')
+    return content
+
+def save_file(file_path, content):
+    with open(file_path, 'wb') as file_obj:
+        file_obj.write(content.encode('utf-8'))
+
 def initialize_interview_chat():
+    """Initialize the interview chat with context and return initial questions."""
     global chat_instance
+    
     try:
-        context_file = Path('docs/analytics.md')
+        context_file = Path('nbs/docs/analytics.md')
         context_media = context_file.read_text(encoding='utf-8')
     except:
         context_media = ""  # Fallback if file not found
@@ -32,7 +44,10 @@ def initialize_interview_chat():
                 [Q2] ...
                 My resume is in the project docs, the core competencies for a senior analyst are below:
                 {context_media}"""
-                
+    
+    questions = chat_instance(prompt)
+    save_file(Path('templates/questions.txt'), questions.content[0].text)
+
     return chat_instance(prompt)
 
 def respond(user_message, history):
@@ -45,8 +60,11 @@ def respond(user_message, history):
     if is_first_interaction and user_message.strip().lower() == "hello. let's begin.":
         is_first_interaction = False
         initial_questions = initialize_interview_chat()
-        return f"Welcome! I've prepared some interview questions for you. Here they are:\n\n{initial_questions.content[0].text}\n\nLet's start with the first question. Are you ready?"
-    
+        #return f"Welcome and good luck. Here is you first interview question:\n{initial_questions.content[0].text}\n\n"
+        response = chat_instance(f"""System message: {INTERVIEW_INSTRUCTIONS}, 
+                                     User: {user_message}""")
+        return f"Good luck, here is your first question.\n {response.content[0].text}"
+
     # Regular chat interaction
     if chat_instance is None:
         chat_instance = claudette.Chat(claudette.models[3], sp="You are a helpful and concise assistant.")
@@ -54,11 +72,7 @@ def respond(user_message, history):
     response = chat_instance(f'System message: {INTERVIEW_INSTRUCTIONS}, User: {user_message}')
     return response.content[0].text
 
-def read_file(file_obj):
-    if file_obj is None:
-        return ""
-    content = file_obj.read().decode('utf-8')
-    return content
+
 
 def update_system_prompt(file_obj, scenario):
     content = read_file(file_obj) if file_obj else ""
